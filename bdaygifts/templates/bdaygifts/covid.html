@@ -1,12 +1,22 @@
 {% extends "bdaygifts/base.html" %}
 {% block content %}
+{% if request.resolver_match.url_name == 'covid' %}
+  <h2 class="article-content">USA Statistics</h2>
+{% elif request.resolver_match.url_name == 'ohiocovid' %}
+  <h2 class="article-content">Ohio Statistics</h2>
+{% endif %}
 {% for key, value in dict.items %}
+
           <article class="media content-section">
             <div class="media-body">
-              <h2 class="article-content">{{ key }} {{ value }}</h2>
+              <h5 class="article-content">{{ key }} {{ value }}</h5>
             </div>
            </article>
 {% endfor %}
+
+<button type="submit" onclick="location.href='{% url 'ohiocovid' %}'" name='mybtn2'>Ohio</button>
+<button type="submit" onclick="location.href='{% url 'covid' %}'" name='mybtn2'>United States</button>
+
 
 {% if is_paginated %}
   {% if page_obj.has_previous %}

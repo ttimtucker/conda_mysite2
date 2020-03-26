@@ -1,0 +1,98 @@
+## Deployment on server
+#first time:
+python3 -m venv <project_name>/venv (e.g. conda_mysite2/venv)
+
+#install wsgi, apache2
+sudo apt-get install apache2
+sudo apt-get install libapache2-mod-wsgi-py3
+cd /etc/apache2/sites-available
+	copy default conf to a new file for our project and make following changes:
+======================
+venv) ttimtucker@linux-django:~/conda_mysite2$ diff /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/django_project.conf
+19c19
+< 
+---
+> 
+
+26,27c26,28
+<       # following line enables the CGI configuration for this host only
+<       # after it has been globally disabled with "a2disconf".
+---
+> 
+        # following line enables the CGI configuration for this host only
+> 
+        # after it has been globally disabled with "a2disconf".
+> 
+
+28a30,51
+> 
+>       Alias /static /home/ttimtucker/conda_mysite2/static
+>       <Directory /home/ttimtucker/conda_mysite2/static>
+>               Require all granted
+>       </Directory> 
+> 
+>       Alias /media /home/ttimtucker/conda_mysite2/media
+>       <Directory /home/ttimtucker/conda_mysite2/media>
+>               Require all granted
+>       </Directory>
+> 
+> 
+>       <Directory /home/ttimtucker/conda_mysite2>
+>               <Files wsgi.py>
+>                       Require all granted
+>               </Files>
+>       </Directory>
+> 
+>       WSGIScriptAlias / /home/ttimtucker/conda_mysite2/conda_mysite2/wsgi.py
+>       WSGIDaemonProcess django_app python-path=/home/ttimtucker/conda_mysite2 python-home=/home/ttimtucker/conda_mysite2/venv
+>       WSGIProcessGroup django_app
+
+====================
+
+#start the environment
+cd <project_name>
+source venv/bin/activate
+
+# Add this to settings.py above STATIC_URL
+STATIC_ROOT=os.path.join(BASE_DIR, 'static')
+python manage.py collectstatic
+# enable new apache site
+
+sudo a2ensite django_project (where "django_project" is the name of the new .conf file created above)
+sudo a2dissite 000-default.conf (disable default site)
+
+
+# set apache to own project directory, and DB and media
+sudo chown :www-data <project>/db.sqlite3
+sudo chmod 664 <project>/db.sqlite3
+sudo chown :www-data <project>
+sudo chown -R :www-data <project>/media/
+sudo chmod -R 775 <project>/media/
+
+# create config file for sensitive info
+
+{
+	"SECRET_KEY": "<key from settings.py>",
+	"EMAIL_USER": "user@gmail.com",
+	"EMAIL_PASS": "<16 character password created for email user to allow 3rd party apps access>"
+}
+# change settings.py as follows:
+#read in config.json
+import json
+with open('/etc/config.json') as config_file:
+	config=json.load(config_file)
+
+# use config file contents
+SECRET_KEY=config['SECRET_KEY']
+EMAIL_HOST_USER=config.get('EMAIL_USER')
+EMAIL_HOST_PASSWORD=config.get('EMAIL_PASS')
+
+#set debug to false
+DEBUG=False
+
+#set up firewall
+sudo ufw delete allow 8000
+sudo ufw allow http/tcp
+
+#start apache
+sudo service apache2 restart
