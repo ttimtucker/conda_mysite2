@@ -7,8 +7,8 @@ from django import forms
 # Create your models here.
 
 GIFTEE_CHOICES=[
-    ('tim', 'Tim'),
-    ('karen', 'Karen')
+    ('Tim', 'Tim'),
+    ('Karen', 'Karen')
 ]
 
 class Gift(models.Model):

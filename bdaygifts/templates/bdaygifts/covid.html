@@ -1,28 +1,11 @@
 {% extends "bdaygifts/base.html" %}
 {% block content %}
-{% for x in gift %}
-        {% if request.resolver_match.url_name == 'bdaygifts-tim' %}
-          {% if x.recipient == 'Tim' %}
+{% for key, value in dict.items %}
           <article class="media content-section">
             <div class="media-body">
-              <h2 class="article-content">{{ x.title }}</h2>
-              <p class="article-content">{{ x.content }}</p>
-              <img src="{{ x.img.url }}" alt="UML diagram" style="width:100px;height:100px;" title="{{ x.hover }}">
-
+              <h2 class="article-content">{{ key }} {{ value }}</h2>
             </div>
            </article>
-          {% endif %}
-        {% elif request.resolver_match.url_name == 'bdaygifts-karen' %}
-           {% if x.recipient == 'Karen' %}
-            <article class="media content-section">
-             <div class="media-body">
-              <h2 class="article-content">{{ x.title }}</h2>
-              <p class="article-content">{{ x.content }}</p>
-              <img src="{{ x.img.url }}" alt="UML diagram" style="width:100px;height:100px;" title="{{ x.hover }}">
-            </div>
-            </article>
-          {% endif %}
-        {% endif %}
 {% endfor %}
 
 {% if is_paginated %}

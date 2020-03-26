@@ -19,11 +19,11 @@ def home(request):
     context={
         'postskey': Post.objects.all()
     }
-    return render(request, 'blog/home.html', context)
+    return render(request, 'blog/covid.html', context)
 
 class PostListView(ListView):
     model=Post
-    template_name='blog/home.html'
+    template_name='blog/covid.html'
     context_object_name='postskey'
     ordering=['-date_posted']
     paginate_by=5

@@ -10,6 +10,8 @@ def tim(request):
     context={
         'gift': Gift.objects.all()
     }
+    for y in Gift.objects.all():
+        print (y.title, y.recipient)
     return render(request, 'bdaygifts/home.html', context)
 
 def root(request):
