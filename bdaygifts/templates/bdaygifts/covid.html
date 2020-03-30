@@ -1,21 +1,51 @@
 {% extends "bdaygifts/base.html" %}
 {% block content %}
+<!--
+{{ request.resolver_match.url_name }}
 {% if request.resolver_match.url_name == 'covid' %}
   <h2 class="article-content">USA Statistics</h2>
 {% elif request.resolver_match.url_name == 'ohiocovid' %}
   <h2 class="article-content">Ohio Statistics</h2>
 {% endif %}
+-->
+<i  class="article-content">{% now "SHORT_DATETIME_FORMAT" %} UTC</i>
 {% for key, value in dict.items %}
-
-          <article class="media content-section">
-            <div class="media-body">
-              <h5 class="article-content">{{ key }} {{ value }}</h5>
-            </div>
-           </article>
+    {% if key == 'callingviewkey' %}
+        {% if value == 'covid' %}
+            <h2 style="color:blue;" class="article-content">Worldwide Statistics</h2>
+        {% elif value == 'ohiocovid' %}
+            <h2 style="color:blue;" class="article-content">Ohio Statistics</h2>
+        {% endif %}
+    {% endif %}
+{% endfor %}
+{% for key, value in dict.items %}
+    {% if key != 'callingviewkey' %}
+      <article class="media content-section">
+        <div class="media-body">
+          <h5 class="article-content">{{ key }} {{ value }}</h5>
+        </div>
+       </article>
+    {% endif %}
 {% endfor %}
 
+<!--
 <button type="submit" onclick="location.href='{% url 'ohiocovid' %}'" name='mybtn2'>Ohio</button>
 <button type="submit" onclick="location.href='{% url 'covid' %}'" name='mybtn2'>United States</button>
+-->
+<form action="{% url 'selectregion' %}" method="POST">
+  {% csrf_token %}
+  <fieldset>
+        <p>
+           <label>Select Region</label>
+           <select name = "dropdown">
+             <option value = "World">World</option>
+             <option value = "OH">Ohio</option>
+           </select>
+          <input type="submit" value="Go">
+
+        </p>
+   </fieldset>
+</form>
 
 
 {% if is_paginated %}
