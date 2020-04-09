@@ -25,3 +25,10 @@ def karen(request):
     }
     return render(request, 'bdaygifts/home.html', context)
 
+def games(request):
+    print('Executing "games" in {} '.format(__name__))
+    context={
+        'gift': Gift.objects.all()
+    }
+
+    return render(request, 'bdaygifts/home.html', context)

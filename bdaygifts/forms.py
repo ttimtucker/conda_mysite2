@@ -17,3 +17,6 @@ class Region_Selected(forms.Form):
 
 class FilterForm(forms.Form):
     filter_by = forms.ChoiceField(choices=FILTER_CHOICES)
+
+class PlotForm(forms.Form):
+     filter_by = forms.ChoiceField(choices=FILTER_CHOICES)

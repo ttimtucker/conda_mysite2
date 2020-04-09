@@ -1,0 +1,23 @@
+{% extends "bdaygifts/base.html" %}
+{% block content %}
+
+<i  class="article-content">{% now "SHORT_DATETIME_FORMAT" %} UTC</i>
+
+<form action="{% url 'selectplot' %}" method="POST">
+  {% csrf_token %}
+  <fieldset>
+        <p>
+           <label>Select COVID-19 dataset</label>
+           <select name = "dropdown">
+               {% for x in key %}
+                <option value ={{ x.0 }}>{{ x.1 }}</option>
+               {% endfor %}
+           </select>
+          <input type="submit" value="Go">
+
+        </p>
+   </fieldset>
+</form>
+
+
+{% endblock content %}
