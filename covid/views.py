@@ -7,30 +7,38 @@ from covid.covid import get_plot_choices, plot_covid
 import re
 from django import forms
 import pickle
+import logging
 
 # Create your views here.
 
 def covid2(request):
 
+    logging.debug('in covid.views.covid2')
     l=get_plot_choices()
     covid_url_choice=l[0]
     covid_url = l[1]
     Filter_Choices=[ [covid_url_choice[i], re.search(r'covid19_(.*)_', covid_url_choice[i]).group(1) ] for i in range(len(covid_url_choice))]
     global_context={'key': Filter_Choices}
-    #print(global_context)
-    with open('fucking_globals', 'wb') as f:
+    logging.debug('covid.views.covid2: global_context=%s', global_context)
+    with open('/tmp/fucking_globals', 'wb') as f:
         pickle.dump([global_context,covid_url_choice,covid_url],f)
     return render(request, 'bdaygifts/covid2.html', global_context)
 
 
 def selectplot(request):
+    logging.debug('in covid.views.selectplot')
     form=PlotForm(request.POST)
     selected=request.POST['dropdown'].strip()
-    print('Region selected=',selected)
-    with open('fucking_globals','rb') as f:
+    #print('Region selected=',selected)
+    with open('/tmp/fucking_globals','rb') as f:
         l=pickle.load(f)
     global_context=l[0]
-    return plot_covid(selected, global_context)
+    cplot_filename=plot_covid(selected, global_context)
+    logging.debug('in covid.views.selectplot: plot file = %s', cplot_filename)
+    #return plot_covid(selected, global_context)
+    #return redirect('covid2')
+    dict={'plot':{'plot': 'covid/covid.png'}}
+    return render(request, 'bdaygifts/covid_plot.html', dict)
 
 
 def selectregion(request):
@@ -42,11 +50,11 @@ def selectregion(request):
     #print(dir(form['filter_by']))
     #print('dir form=',dir(form))
     if form.is_valid():
-        print('valid form=',form.cleaned_data.get('filter_by'))
+        logging.debug('valid form=')
     else:
-        print('form is not valid')
+        logging.debug('form is not valid')
     selected=request.POST['dropdown'].strip()
-    print('Region selected=',selected)
+    #print('Region selected=',selected)
     if selected=='World':
         return covid(request)
     else:

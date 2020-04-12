@@ -1,0 +1,12 @@
+{% extends "bdaygifts/base.html" %}
+{% load static %}
+{% block content %}
+
+{% for key,value  in plot.items %}
+
+<img src="{% static value %}"/>
+
+{% endfor %}
+
+{% endblock content %}
+

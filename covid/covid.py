@@ -13,8 +13,13 @@ import os
 import webbrowser
 from django.http import HttpResponse
 from django.shortcuts import redirect
-import globals
+
+#import globals
 import pickle
+from math import pow, modf, log10
+import logging
+from django.conf import settings
+#from ..conda_mysite2.settings import STATICFILES_DIRS
 
 plt.style.use('seaborn')
 #humdata_host = re.search(r'(^http[s]?:\/\/[\d\w\.]+)\/', humdata_url).group(1)
@@ -40,10 +45,11 @@ def get_plot_choices():
     return [covid_url_choice, covid_url]
 
 def plot_covid(dataset, global_context):
+    logging.debug('in covid.covid.plot_covid')
 
     # webbrowser.open(r'file://{}'.format(os.path.abspath('covid.pdf')))
     # plt.clf()
-    with open('fucking_globals','rb') as f:
+    with open('/tmp/fucking_globals','rb') as f:
         l=pickle.load(f)
     global_context=l[0]
     covid_url_choice=l[1]
@@ -54,17 +60,17 @@ def plot_covid(dataset, global_context):
     humdata_host = re.search(r'(^http[s]?:\/\/[\d\w\.]+)\/', humdata_url).group(1)
     country = 'US'
     csv_url = humdata_host + covid_url[dataset]
-    title = dataset.split('.')[0]
-    #print('title={}, csv_url={}'.format(title,csv_url))
-    ylabel = re.search(r'^.*covid19_(.*)_.*', title).group(1)
+    title = 'COVID-19 data compiled by John Hopkins University\nDataset={}\nCountry={}'.format(dataset.split('.')[0],country)
+    print('title={}, csv_url={}'.format(title,csv_url))
+    ylabel = country+' '+re.search(r'^.*covid19_(.*)_.*', dataset.split('.')[0]).group(1).capitalize()
     # print('csv_url={}'.format(csv_url))
-    # urllib.request.urlretrieve(csv_url, 'covid.csv')
+    # urllib.request.urlretrieve(csv_url, '/tmp/covid.csv')
     df = pd.read_csv(csv_url)
     # df.head()
-    df.to_csv('covid.csv', index=False)
+    df.to_csv('/tmp/covid.csv', index=False)
 
     # print('Country entered is {}'.format(country))
-    with open('covid.csv') as csv_file:
+    with open('/tmp/covid.csv') as csv_file:
         csv_reader = csv.reader(csv_file)
         date_row = next(csv_reader)[4:]
         # print(date_row)
@@ -72,89 +78,37 @@ def plot_covid(dataset, global_context):
         for row in csv_reader:
             if row[1] == country:
                 ydata = list(map(int, row[4:]))
-                # print('ydata={}'.format(ydata))
+                print('ydata={}'.format(ydata))
                 break
         if not ydata:
             print('Could not find data for country {}'.format(country))
 
     dates = [dt.datetime.strptime(d, '%m/%d/%y').date() for d in date_row]
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%y'))
-    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=7))
-    ymin = min(ydata)
+    logging.debug('dates=%s',dates)
+
+    fig,ax=plt.subplots()
+    fig.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%y'))
+    fig.gca().xaxis.set_major_locator(mdates.DayLocator(interval=7))
     ymax = max(ydata)
-    # print(ymin,ymax)
 
-    plt.locator_params(axis='y', nbins=10)
-    custom_ticks = np.linspace(ymin, ymax, 20, dtype=int)
-    # print(type(custom_ticks), custom_ticks)
-    plt.gca().set_yticks(custom_ticks)
-    plt.gca().set_yticklabels(custom_ticks)
-    plt.plot_date(dates, ydata, xdate=True, marker=None, linestyle='solid')
+    yupper=int(pow(10,int(modf(log10(ymax))[1]))*(int(pow(10,modf(log10(ymax))[0]))+1))
+    custom_ticks = np.linspace(0, yupper, 11, dtype=int)
+    fig.gca().set_yticks(custom_ticks)
+    fig.gca().set_yticklabels(custom_ticks, color='green')
+    ax.plot_date(dates, ydata, xdate=True, marker=None, linestyle='solid', linewidth=2, color='black')
     plt.gcf().autofmt_xdate()
+    ax.tick_params(axis="y", labelsize=10, colors='blue')
+    ax.tick_params(axis="x", labelsize=10, colors='blue')
     plt.title(title)
-    plt.xlabel("Date")
-    plt.ylabel(ylabel)
-    plt.savefig('covid.pdf')
-    webbrowser.open(r'file://{}'.format(os.path.abspath('covid.pdf')))
-    plt.clf()
+    #plt.xlabel("Date")
+    plt.ylabel(ylabel, fontname="Arial", fontsize=12 )
+    plt.tight_layout()
 
-    return redirect('covid2')
+    #plt.savefig('/home/ttucker/conda_mysite2/static/covid/covid.png')
+    plot_url=settings.STATICFILES_DIRS[0]+'/covid/covid.png'
+    plt.savefig(plot_url)
+    #webbrowser.open(r'file://{}'.format(os.path.abspath('/tmp/covid.png')))
+    #plt.clf()
 
-    # return HttpResponse('This is where {} covid plot will happen'.format(dataset))
-
-#   #country = input('Enter country: ')
-#
-# #while True:
-#
-#
-#     dataset = int(input('Select a data set to plot: '))
-#     if dataset:
-#         print('Plotting dataset {} ({})'.format(dataset, covid_url_choice[dataset - 1]))
-#         print('When finished with plot, close plot to display a different dataset')
-#         # Get csv file
-#         csv_url = humdata_host + covid_url[covid_url_choice[dataset - 1]]
-#         title = covid_url_choice[dataset - 1].split('.')[0]
-#         ylabel = re.search(r'^.*covid19_(.*)_.*', title).group(1)
-#         # print('csv_url={}'.format(csv_url))
-#         # urllib.request.urlretrieve(csv_url, 'covid.csv')
-#         df = pd.read_csv(csv_url)
-#         # df.head()
-#         df.to_csv('covid.csv', index=False)
-#
-#         # print('Country entered is {}'.format(country))
-#         with open('covid.csv') as csv_file:
-#             csv_reader = csv.reader(csv_file)
-#             date_row = next(csv_reader)[4:]
-#             # print(date_row)
-#             ydata = []
-#             for row in csv_reader:
-#                 if row[1] == country:
-#                     ydata = list(map(int, row[4:]))
-#                     # print('ydata={}'.format(ydata))
-#                     break
-#             if not ydata:
-#                 print('Could not find data for country {}'.format(country))
-#
-#         dates = [dt.datetime.strptime(d, '%m/%d/%y').date() for d in date_row]
-#         plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%y'))
-#         plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=7))
-#         ymin = min(ydata)
-#         ymax = max(ydata)
-#         # print(ymin,ymax)
-#
-#         plt.locator_params(axis='y', nbins=10)
-#         custom_ticks = np.linspace(ymin, ymax, 20, dtype=int)
-#         # print(type(custom_ticks), custom_ticks)
-#         plt.gca().set_yticks(custom_ticks)
-#         plt.gca().set_yticklabels(custom_ticks)
-#         plt.plot_date(dates, ydata, xdate=True, marker=None, linestyle='solid')
-#         plt.gcf().autofmt_xdate()
-#         plt.title(title)
-#         plt.xlabel("Date")
-#         plt.ylabel(ylabel)
-#         plt.savefig('covid.pdf')
-#         webbrowser.open(r'file://{}'.format(os.path.abspath('covid.pdf')))
-#        plt.clf()
-#        return 0
-
-    return redirect('covid2')
+    #return redirect('covid2')
+    return 'covid/covid.png'
