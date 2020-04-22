@@ -1,0 +1,30 @@
+{% extends "bdaygifts/base.html" %}
+{% block content %}
+
+
+    <h1>{{ message }} </h1>
+    <div id="reset"></div>
+
+    <form   action="{% url 'gridclick' %}" method="GET" align="center" >
+        {% csrf_token %}
+        <button class="btnreset" type="submit" name="newgame">New Game</button>
+    </form>
+
+    <form  action="{% url 'gridclick' %}" method="GET" align="center" >
+       {% csrf_token %}
+
+        <button class="btn" type="submit" name='b0'>{{ grid.0.0 }}</button>
+        <button class="btn" type="submit" name='b1'>{{ grid.0.1 }}</button>
+        <button class="btn" type="submit" name='b2'>{{ grid.0.2 }}</button><br />
+        <button class="btn" type="submit" name='b3'>{{ grid.1.0 }}</button>
+        <button class="btn" type="submit" name='b4'>{{ grid.1.1 }}</button>
+        <button class="btn" type="submit" name='b5'>{{ grid.1.2 }}</button><br />
+        <button class="btn" type="submit" name='b6'>{{ grid.2.0 }}</button>
+        <button class="btn" type="submit" name='b7'>{{ grid.2.1 }}</button>
+        <button class="btn" type="submit" name='b8'>{{ grid.2.2 }}</button>
+    </form>
+
+    </body>
+</html>
+
+{% endblock content %}

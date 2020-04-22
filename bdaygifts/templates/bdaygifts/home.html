@@ -1,5 +1,6 @@
 {% extends "bdaygifts/base.html" %}
 {% block content %}
+<!--
 {% for x in gift %}
         {% if request.resolver_match.url_name == 'bdaygifts-tim' %}
           {% if x.recipient == 'Tim' %}
@@ -24,6 +25,7 @@
           {% endif %}
         {% endif %}
 {% endfor %}
+-->
 
 {% if is_paginated %}
   {% if page_obj.has_previous %}
