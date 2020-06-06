@@ -33,7 +33,7 @@ dask==2.9.2
 decorator==4.4.1
 defusedxml==0.6.0
 distributed==2.9.3
-Django==2.2.5
+Django==2.2.13
 django-crispy-forms==1.9.0
 docutils==0.15.2
 entrypoints==0.3
